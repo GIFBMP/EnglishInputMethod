@@ -52,7 +52,7 @@ void GetList (string s) {
 	puts ("--------------------------") ;
 }
 int main () {
-	ifstream fin ("newlist.txt") ;
+	ifstream fin ("newlist.txt") ; 
 	string s ;
 	while (getline (fin , s)) {
 		int len = s.size () ;
