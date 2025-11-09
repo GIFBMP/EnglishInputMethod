@@ -19,7 +19,7 @@ namespace AutoMaton {
 		if (tree[x].visit_count == tree[y].visit_count) return x < y ;
 		else return tree[x].visit_count > tree[y].visit_count ;
 	}
-	int rt , total_nodes ;
+	int rt = 0 , total_nodes = 0 ;
 	//ignore the difference of capital and small letters
 	int GetNum (char ch) {
 		if (ch >= 'A' && ch <= 'Z') return ch - 'A' ;
@@ -41,6 +41,7 @@ namespace AutoMaton {
 		int id[35] ;
 		for (int i = 0 ; i <= 27 ; i++)
 			if (!tree[x].edge_typ[i]) id[i] = tree[x].son[i] ;
+			else id[i] = 0 ;
 		sort (id , id + 28 , cmp) ;//do not take space into consideration
 		for (int i = 0 ; i <= 27 ; i++) {
 			if (id[i])
@@ -82,15 +83,20 @@ namespace AutoMaton {
 			if (s[i] != ' ') t += s[i] ;
 			nw = tree[nw].son[x] ;
 		}
-		if (fl) return ;
-		int start_id = 2 ;
+		if (fl) {
+			puts ("") ;
+			puts ("--------------------------") ;
+			return ;
+		}
+		int start_id = 1 ;
 		if (t != s) {
 			start_id++ ;
 			cout << "2. " << t << ' ' ;
 		}
+		nw = rt ;
 		for (int i = 0 ; i < len ; i++) {
 			char ch = s[i] ; int x = GetNum (ch) ;
-			if (x > 27 || (tree[nw].edge_typ || !tree[nw].son[x])) {
+			if (x > 27 || (tree[nw].edge_typ[x] || !tree[nw].son[x])) {
 				fl = 1 ;
 				break ;
 			}
@@ -139,7 +145,7 @@ namespace AutoMaton {
 			int x = q[hd++] ;
 			for (int i = 0 ; i <= 27 ; i++) {
 				int v = tree[x].son[i] ;
-				if (v) tree[v].fail = tree[tree[x].fail].son[i] , q[++tl] = v ;
+				if (v && !tree[x].edge_typ[i]) tree[v].fail = tree[tree[x].fail].son[i] , q[++tl] = v ;
 				else tree[x].son[i] = tree[tree[x].fail].son[i] , tree[x].edge_typ[i] = 1 ;
 			}
 		}
@@ -171,19 +177,26 @@ int main () {
 	if (!typ) ResetList () ;
 	else ReadList () ;
 	GetFail () ;
-	cout << "输入法启动，输入 @ESC 退出\n" ;
+	cout << "输入法启动，输入 @ESC 退出，输入 @REFRESH 刷新词库\n" ;
 	string s ; getline (cin , s) ;
 	while (1) {
 		getline (cin , s) ;
+		if (s == "") continue ;
 		//cout << s << endl ;
 		if (s == "@ESC") break ;
+		if (s == "@REFRESH") {
+			GetFail () ;
+			continue ;
+		}
 		GetList (s) ;
 		InsertSentence (s) ;
 	}
 	ofstream fout ("tree.txt") ;
 	for (int i = 0 ; i <= total_nodes ; i++) {
 		fout << i << ' ' << tree[i].visit_count << ' ' ;
-		for (int j = 0 ; j <= 27 ; j++) fout << tree[i].son[j] << ' ' ;
+		for (int j = 0 ; j <= 27 ; j++)
+			if (!tree[i].edge_typ[j]) fout << tree[i].son[j] << ' ' ;
+			else fout << 0 << ' ' ;
 		if (tree[i].exist_word == "") fout << 0 << endl ;
 		else fout << 1 << ' ' << tree[i].exist_word << endl ;
 	}
