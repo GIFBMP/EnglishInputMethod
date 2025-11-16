@@ -82,7 +82,11 @@ namespace AutoMaton {
 			}
 			if (s[i] != ' ') t += s[i] ;
 			nw = tree[nw].son[x] ;
+			if (tree[nw].exist_word != "") {
+				t += ' '; nw = rt;
+			}
 		}
+		//cout << t << ' ';
 		if (fl) {
 			puts ("") ;
 			puts ("--------------------------") ;
